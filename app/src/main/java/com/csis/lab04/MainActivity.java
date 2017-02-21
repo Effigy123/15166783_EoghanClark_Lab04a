@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -36,7 +37,11 @@ public class MainActivity extends AppCompatActivity {
 
     private PdUiDispatcher dispatcher; //must declare this to use later, used to receive data from sendEventsTextView myCounter;
 
+    private SeekBar slider;
+
     TextView myCounter;
+    TextView myCounter2;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +51,27 @@ public class MainActivity extends AppCompatActivity {
         Switch onOffSwitch = (Switch) findViewById(R.id.onOffSwitch);//declared the switch here pointing to id onOffSwitch
 
         myCounter = (TextView) findViewById(R.id.counter);
+        myCounter2 = (TextView) findViewById(R.id.frequency);
+        slider = (SeekBar) findViewById(R.id.slider);
+
+
+        slider.setOnSeekBarChangeListener(
+                new SeekBar.OnSeekBarChangeListener()
+                {
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                        sendFloatPD("slider", progress/100.0f);
+                    }
+
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar) {
+                    }
+
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar) {
+                    }
+
+                });
 
         //Check to see if switch1 value changes
         onOffSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -128,13 +154,12 @@ public class MainActivity extends AppCompatActivity {
             pdPost("float: " + x);
             if(source.equals("sendCounter")) {
                 myCounter.setText(String.valueOf(x));
-                if(source.equals("sendFrequency"))
 
-                {
+            }
 
-                //Functionality goes here
+            if(source.equals("sendFrequency")) {
+                myCounter2.setText(String.valueOf(x));
 
-                }
             }
         }
 
@@ -146,7 +171,9 @@ public class MainActivity extends AppCompatActivity {
 
     }
         @Override public void receiveSymbol(String source, String symbol) {
-            pdPost("symbol: " + symbol); } };
+            pdPost("symbol: " + symbol);
+        }
+    };
 
     //<---THIS METHOD INITIALISES AUDIO SERVER----->
     private void initPD() throws IOException
@@ -164,4 +191,6 @@ public class MainActivity extends AppCompatActivity {
         PdBase.subscribe("sendFrequency");
     }
 
+
 }
+
